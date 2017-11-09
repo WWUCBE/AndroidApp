@@ -5,8 +5,14 @@
     tools:context="io.github.kingcritter.cbecalculator.TranscriptActivityCategoryView">
 
     <item
+        android:id="@+id/actionAddClass"
+        android:icon="@drawable/ic_add_circle_outline_white_24dp"
+        android:title="Add"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/actionHelp"
-        android:icon="@android:drawable/ic_menu_help"
+        android:icon="@drawable/ic_help_outline_white_24dp"
         android:title="Help"
         app:showAsAction="always" />
+
 </menu>

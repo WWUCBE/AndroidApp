@@ -1,28 +1,36 @@
 package io.github.wwucbe.cbecalculatorv2;
 
 import java.text.DecimalFormat;
+import java.util.LinkedList;
 import java.util.List;
 
+import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import io.github.wwucbe.wwutranscript.CalculateGpa;
-import io.github.wwucbe.wwutranscript.Course;
+import io.github.wwucbe.integretedbackend.CalculateGpaKt;
+import io.github.wwucbe.integretedbackend.Course;
 
-public class TranscriptActivity extends AppCompatActivity {
+public class TranscriptActivity extends AppCompatActivity
+        implements AddClassFragment.NoticeDialogListener {
     static final String TAG = "CBETAG"; // debug purposes
     List<Course> courseListCBE;
     List<Course> courseListMSCM;
+    List<Course> courseListUser = new LinkedList<>();
     ListView listview;
 
     float gpaCBE;
@@ -49,18 +57,11 @@ public class TranscriptActivity extends AppCompatActivity {
         ab.setDisplayHomeAsUpEnabled(true);
 
         /* create the two filtered lists and save them */
-        courseListCBE = CalculateGpa.INSTANCE.filterCourses(LoginActivity.courseList, CBE);
-        courseListMSCM = CalculateGpa.INSTANCE.filterCourses(LoginActivity.courseList, MSCM);
+        courseListCBE = CalculateGpaKt.filterCourses(LoginActivity.courseList, CBE);
+        courseListMSCM = CalculateGpaKt.filterCourses(LoginActivity.courseList, MSCM);
 
-        /* calculate the GPAs */
-        gpaCBE = CalculateGpa.INSTANCE.getCBEGPA(courseListCBE);
-        gpaMSCM = CalculateGpa.INSTANCE.getMSCMGPA(courseListMSCM);
-
-        /*create two adapters  and set CBE as default */
-        listview = (ListView) findViewById(R.id.courseListview);
-        adapterCBE = new CourseArrayAdapter(this, courseListCBE);
-        adapterMSCM = new CourseArrayAdapter(this, courseListMSCM);
-        listview.setAdapter(adapterCBE);
+        /* create adapters */
+        createAdapters();
 
         /* set up the toggle button (kinda hacky, but it works)*/
         toggleMode(null);
@@ -70,6 +71,33 @@ public class TranscriptActivity extends AppCompatActivity {
 
     }
 
+    /* merge user and fetched course lists, calculate gpas, and create adapters. */
+    private void createAdapters() {
+        /* merge */
+        List<Course> mergedCBE = new LinkedList<>(courseListCBE);
+        mergedCBE.addAll(courseListUser);
+        List<Course> mergedMSCM = new LinkedList<>(courseListMSCM);
+        mergedMSCM.addAll(courseListUser);
+
+        /* calculate the GPAs */
+        gpaCBE = CalculateGpaKt.getCBEGPA(mergedCBE);
+        gpaMSCM = CalculateGpaKt.getMSCMGPA(mergedMSCM);
+
+        /*create two adapters  and set the current one*/
+        adapterCBE = new CourseArrayAdapter(this, mergedCBE);
+        adapterMSCM = new CourseArrayAdapter(this, mergedMSCM);
+
+        listview = (ListView) findViewById(R.id.courseListview);
+        if (currentMode == CBE) {
+            listview.setAdapter(adapterCBE);
+        } else {
+            listview.setAdapter(adapterMSCM);
+        }
+
+        /* display new gpa */
+        updateGPA();
+    }
+
     /* updates the textview that displays the GPA */
     private void updateGPA() {
         DecimalFormat df = new DecimalFormat();
@@ -77,9 +105,9 @@ public class TranscriptActivity extends AppCompatActivity {
         TextView tvGpa = (TextView) findViewById(R.id.gpa_textview);
 
         if (currentMode == CBE) {
-            tvGpa.setText(df.format(gpaCBE));
+            tvGpa.setText("GPA: " + df.format(gpaCBE));
         } else {
-            tvGpa.setText(df.format(gpaMSCM));
+            tvGpa.setText("GPA: " + df.format(gpaMSCM));
         }
     }
 
@@ -90,13 +118,13 @@ public class TranscriptActivity extends AppCompatActivity {
         if (currentMode == CBE) {
             currentMode = MSCM;
             listview.setAdapter(adapterMSCM);
-            selected_b = (Button) findViewById(R.id.mscn);
+            selected_b = (Button) findViewById(R.id.mscm);
             unselected_b = (Button) findViewById(R.id.cbe);
         } else {
             currentMode = CBE;
             listview.setAdapter(adapterCBE);
             selected_b = (Button) findViewById(R.id.cbe);
-            unselected_b = (Button) findViewById(R.id.mscn);
+            unselected_b = (Button) findViewById(R.id.mscm);
         }
 
         selected_b.setBackgroundColor(Color.rgb(61, 141, 255));
@@ -124,12 +152,50 @@ public class TranscriptActivity extends AppCompatActivity {
         /* we do this so the login screen doesn't automatically
          * log the user back in immediately */
         if (id == android.R.id.home) {
-            LoginActivity.autoLogin = false;
+            SharedPreferences settings = getSharedPreferences("cbe", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("autoLogin", false);
+            editor.apply();
         } else if (id == R.id.actionHelp) {
             Intent intent = new Intent(this, HelpActivity.class);
             startActivity(intent);
+        } else if (id == R.id.actionAddClass) {
+            final AddClassFragment adderDialog = new AddClassFragment();
+            FragmentManager fragmentManager = getFragmentManager();
+            adderDialog.show(fragmentManager, "adder");
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /* triggered by a user pressing the "add class" button from the alert dialog
+    *  (code for which is in AddClassFragment.java) */
+    public void addClass(String subject, String course, String credits, String grade) {
+        grade = grade.toUpperCase().trim();
+        subject = subject.toUpperCase().trim();
+        course = course.trim();
+        credits = credits.trim();
+
+        Course c = new Course("user added", grade, subject,
+                Integer.valueOf(course), Integer.valueOf(credits), true);
+        courseListUser.add(c);
+        createAdapters();
+
+        Log.d(TAG, "Count after: " + adapterMSCM.getCount());
+    }
+
+    /* triggered by the "remove" button on user-added classes */
+    public void removeClass(View view) {
+        Course removed = (Course) view.getTag();
+        for (int i = 0; i < courseListUser.size(); i++) {
+            if (courseListUser.get(i) == removed) {
+                Toast.makeText(this, "Removed Class", Toast.LENGTH_SHORT).show();
+                courseListUser.remove(i);
+                break;
+            }
+        }
+
+        createAdapters();
+
     }
 }

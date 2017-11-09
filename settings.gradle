@@ -1,1 +1,1 @@
-include ':app', ':TranscriptFetcher'
+include ':app', ':integretedbackend'

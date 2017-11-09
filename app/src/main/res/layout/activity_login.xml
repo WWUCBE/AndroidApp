@@ -12,11 +12,24 @@
         android:layout_height="56dp"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/AppTheme"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/intructions"
+        android:layout_marginBottom="2dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        android:layout_marginRight="0dp"
+        app:layout_constraintRight_toRightOf="@+id/linearLayout"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/linearLayout"
         app:layout_constraintHorizontal_bias="0.0" />
 
     <LinearLayout
@@ -40,7 +53,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="Username" />
+            android:hint="@string/hintUsername" />
 
         <EditText
             android:id="@+id/password_et"
@@ -48,14 +61,14 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
-            android:hint="Password" />
+            android:hint="@string/hintPassword" />
 
         <Button
             android:id="@+id/login_button"
             android:onClick="submit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Login"
+            android:text="@string/login"
             app:layout_constraintLeft_toLeftOf="@+id/editText2"
             app:layout_constraintRight_toRightOf="@+id/editText2" />
 
@@ -63,17 +76,18 @@
             android:id="@+id/save_info_checkBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Remember Me"
+            android:text="@string/rememberme"
             tools:layout_editor_absoluteX="97dp"
             tools:layout_editor_absoluteY="332dp" />
 
     </LinearLayout>
 
+    <!-- disclaimer text -->
     <TextView
         android:id="@+id/textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="I got 99 problems, but (female) police dogs are not among them. [Legal text goes here.]"
+        android:text=""
         android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

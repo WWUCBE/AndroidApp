@@ -3,5 +3,16 @@
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_help">HelpActivity</string>
+    <string name="helpPara1">Select CBE to calculate your GPA for CBE majors, which includes all CBE grades (excluding Business Calculus and MIS 220). CBE GPA is based <b><i>only</i></b> on classes taken at Western.</string>
+    <string name="helpPara2">Select MSCM to calculate your MSCM Foundation GPA. Equivalent classes taken outside Western <b><i>do</i></b> count toward this GPA, but must be manually entered. Only the <b><i>most recent</i></b> attempt is used. Business Calculus is included in this GPA. MIS 220 or a graded equivalent course taken elsewhere is <b><i>not</i></b> included.</string>
 
+    <!--login page -->
+    <string name="intructions">Use your WWU Universal Login credentials to access your transcript</string>
+    <string name="login">Login</string>
+    <string name="loggingin">Logging in...</string>
+    <string name="invalidLogin">Invalid Login</string>
+    <string name="rememberme">Remember Me</string>
+    <!--hint text -->
+    <string name="hintUsername">Username</string>
+    <string name="hintPassword">Password</string>
 </resources>

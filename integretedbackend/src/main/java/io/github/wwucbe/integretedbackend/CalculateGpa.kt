@@ -10,12 +10,12 @@ package io.github.wwucbe.integretedbackend
 fun getCBEGPA(courses: List<Course>): Float {
     var totalCredits = 0
     var totalPoints = 0f
-    for ((_, grade, subject, _, credits) in courses) {
+    for (c in courses) {
         /* return value of -1 indicates it shouldn't be factored into the GPA calculation*/
-        val courseGrade = letterToNumber(grade)
-        if (courseGrade >= 0) {
-            totalCredits += credits
-            totalPoints += courseGrade * credits
+        val courseGrade = letterToNumber(c.grade)
+        if (courseGrade >= 0 && c.cbeCourse) {
+            totalCredits += c.credits
+            totalPoints += courseGrade * c.credits
         }
     }
 
@@ -34,7 +34,7 @@ fun getMSCMGPA(courses: List<Course>): Float {
     for (c in courses) {
         /* return value of -1 indicates it shouldn't be factored into the GPA calculation*/
         val courseGrade = letterToNumber(c.grade)
-        if (courseGrade >= 0) {
+        if (courseGrade >= 0 && c.mscmCourse) {
             uniqueClasses.put(c.name, GradeInfo(c.credits, courseGrade))
         }
     }
@@ -49,31 +49,6 @@ fun getMSCMGPA(courses: List<Course>): Float {
 
     val gpa = totalPoints / totalCredits
     return gpa
-}
-
-/* Input: List of courses, and a map of subject names to visibility.
-*  Output: grade point averages for classes with subjects marked as visible (true) in the subjects map */
-fun filterCourses(courses: List<Course>, mode: String): List<Course>{
-    val filteredList = ArrayList<Course>()
-
-    if (mode == Constants.CBE) {
-        for (c in courses) {
-            if (c.subject in Constants.CBEAllowedSubjects) {
-                filteredList.add(c)
-            }
-        }
-    } else if (mode == Constants.MSCM) {
-        for (c in courses) {
-            if (c.subject in Constants.MSCMAllowedCourses.keys) {
-                val subjects = Constants.MSCMAllowedCourses.get(c.subject)
-                if (c.courseNum in subjects!!) {
-                    filteredList.add(c)
-                }
-            }
-        }
-    }
-
-    return filteredList
 }
 
 /* Input: the grade, e.g. A- or D+

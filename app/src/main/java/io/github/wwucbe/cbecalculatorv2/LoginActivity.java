@@ -20,9 +20,6 @@ import io.github.wwucbe.integretedbackend.*;
 import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
-    /* we'll save the list here so the other activity can access it. Not great design, but it works. */
-    static List<Course> courseList;
-
     /* do the networking stuff in a different thread, call validate() when complete */
     class RetrieveTranscriptTask extends AsyncTask<String, Void, List<Course>> {
         private List<Course> courses;
@@ -126,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
     *  it starts the view transcript activity. */
     private void validate(List<Course> courses){
         if (courses == null) {
-            courseList = null;
+            Storage.setCourses(null);
             Toast.makeText(this, R.string.invalidLogin, Toast.LENGTH_SHORT).show();
 
             /* reset button */
@@ -134,7 +131,7 @@ public class LoginActivity extends AppCompatActivity {
             button.setText(R.string.login);
             button.setClickable(true);
         } else {
-            courseList = courses;
+            Storage.setCourses(courses);
             Intent intent = new Intent(this, TranscriptActivity.class);
             startActivity(intent);
         }

@@ -28,9 +28,6 @@ import io.github.wwucbe.integretedbackend.Course;
 public class TranscriptActivity extends AppCompatActivity
         implements AddClassFragment.NoticeDialogListener {
     static final String TAG = "CBETAG"; // debug purposes
-    List<Course> courseListCBE;
-    List<Course> courseListMSCM;
-    List<Course> courseListUser = new LinkedList<>();
     ListView listview;
 
     float gpaCBE;
@@ -56,10 +53,6 @@ public class TranscriptActivity extends AppCompatActivity
         ab.setTitle("Transcript");
         ab.setDisplayHomeAsUpEnabled(true);
 
-        /* create the two filtered lists and save them */
-        courseListCBE = CalculateGpaKt.filterCourses(LoginActivity.courseList, CBE);
-        courseListMSCM = CalculateGpaKt.filterCourses(LoginActivity.courseList, MSCM);
-
         /* create adapters */
         createAdapters();
 
@@ -73,19 +66,13 @@ public class TranscriptActivity extends AppCompatActivity
 
     /* merge user and fetched course lists, calculate gpas, and create adapters. */
     private void createAdapters() {
-        /* merge */
-        List<Course> mergedCBE = new LinkedList<>(courseListCBE);
-        mergedCBE.addAll(courseListUser);
-        List<Course> mergedMSCM = new LinkedList<>(courseListMSCM);
-        mergedMSCM.addAll(courseListUser);
-
         /* calculate the GPAs */
-        gpaCBE = CalculateGpaKt.getCBEGPA(mergedCBE);
-        gpaMSCM = CalculateGpaKt.getMSCMGPA(mergedMSCM);
+        gpaCBE = CalculateGpaKt.getCBEGPA(Storage.getCourses());
+        gpaMSCM = CalculateGpaKt.getMSCMGPA(Storage.getCourses());
 
         /*create two adapters  and set the current one*/
-        adapterCBE = new CourseArrayAdapter(this, mergedCBE);
-        adapterMSCM = new CourseArrayAdapter(this, mergedMSCM);
+        adapterCBE = new CourseArrayAdapter(this, Storage.getCourses(),"cbe");
+        adapterMSCM = new CourseArrayAdapter(this, Storage.getCourses(), "mscm");
 
         listview = (ListView) findViewById(R.id.courseListview);
         if (currentMode == CBE) {
@@ -178,19 +165,17 @@ public class TranscriptActivity extends AppCompatActivity
 
         Course c = new Course("user added", grade, subject,
                 Integer.valueOf(course), Integer.valueOf(credits), true);
-        courseListUser.add(c);
+        Storage.getCourses().add(c);
         createAdapters();
-
-        Log.d(TAG, "Count after: " + adapterMSCM.getCount());
     }
 
     /* triggered by the "remove" button on user-added classes */
     public void removeClass(View view) {
         Course removed = (Course) view.getTag();
-        for (int i = 0; i < courseListUser.size(); i++) {
-            if (courseListUser.get(i) == removed) {
+        for (int i = 0; i < Storage.getCourses().size(); i++) {
+            if (Storage.getCourses().get(i) == removed) {
                 Toast.makeText(this, "Removed Class", Toast.LENGTH_SHORT).show();
-                courseListUser.remove(i);
+                Storage.getCourses().remove(i);
                 break;
             }
         }

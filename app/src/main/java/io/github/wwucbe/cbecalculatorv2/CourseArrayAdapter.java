@@ -5,11 +5,14 @@ import android.graphics.Color;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -19,11 +22,13 @@ import java.util.Map;
 
 import io.github.wwucbe.integretedbackend.*;
 
+import static io.github.wwucbe.cbecalculatorv2.TranscriptActivity.TAG;
+
 /**
  * Created by critter on 6/23/2017.
  */
 
-public class CourseArrayAdapter<T> extends ArrayAdapter {
+public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
     private static class ViewHolder {
         TextView tvName;
         TextView tvCrse;
@@ -33,8 +38,32 @@ public class CourseArrayAdapter<T> extends ArrayAdapter {
         Button bRemove;
     }
 
-    public CourseArrayAdapter(@NonNull Context context, List<Course> courses) {
+    private final String CBE = "cbe";
+    private final String MSCM = "mscm";
+
+    private Filter courseFilter;
+    private List<Course> courseList;
+    private String program;
+    private Context context;
+
+    public CourseArrayAdapter(@NonNull Context context, List<Course> courses, String program) {
         super(context, 0, courses);
+        this.getFilter().filter(program);
+        this.courseList = courses;
+        this.program = program;
+        this.context = context;
+    }
+
+    public int getCount() {
+        return courseList.size();
+    }
+
+    public Course getItem(int position) {
+        return courseList.get(position);
+    }
+
+    public long getItemId(int position) {
+        return courseList.get(position).hashCode();
     }
 
 
@@ -70,17 +99,18 @@ public class CourseArrayAdapter<T> extends ArrayAdapter {
 
         /* set style for user added courses */
         if (course.getUserAdded()) {
-            viewHolder.tvName.setTextColor(Color.RED);
+            viewHolder.tvName.setTextColor(ContextCompat.getColor(context, R.color.secondaryDarkColor));
             viewHolder.bRemove.setVisibility(View.VISIBLE);
             viewHolder.bRemove.setTag(course);
-        }
 
-//        /* set background color different for every other item */
-//        if (position % 2 == 0) {
-//            convertView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.primaryLightColor));
-//        } else {
-//            convertView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.primaryLightColor));
-//        }
+            /* detect if it's a valid course  */
+            Boolean invalidCBE = course.getCbeCourse() == false && program.equals(CBE);
+            Boolean invalidMSCM = course.getMscmCourse() == false && program.equals(MSCM);
+            if (invalidCBE || invalidMSCM) {
+                viewHolder.tvName.setTextColor(Color.RED);
+                viewHolder.tvName.setText("not a valid " + program.toUpperCase() + " course");
+            }
+        }
 
         // Return the completed view to render on screen
         return convertView;
@@ -93,5 +123,56 @@ public class CourseArrayAdapter<T> extends ArrayAdapter {
         }
         return grade;
     }
+
+    @Override
+    public Filter getFilter() {
+        if (courseFilter == null)
+            courseFilter = new CourseFilter();
+
+        return courseFilter;
+    }
+
+    private class CourseFilter extends Filter {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            FilterResults results = new FilterResults();
+            // We implement here the filter logic
+            if (constraint == null || constraint.length() == 0) {
+            /* should probably put some error handling logic here, but this should never happen;
+            *  never displaying an unfiltered list. */
+            }
+            else {
+                // We perform filtering operation
+                List<Course> filteredCourseList= new ArrayList<Course>();
+
+                for (Course c : Storage.getCourses()) {
+                    Boolean isCBE = c.getCbeCourse() && constraint.toString().equals(CBE);
+                    Boolean isMSCM = c.getMscmCourse() && constraint.toString().equals(MSCM);
+                    Boolean isUserAdded = c.getUserAdded();
+
+                    if (isCBE || isMSCM || isUserAdded) {
+                        filteredCourseList.add(c);
+                    }
+                }
+
+                results.values = filteredCourseList;
+                results.count = filteredCourseList.size();
+                Log.d(TAG, "Size: " + results.count);
+            }
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            // Now we have to inform the adapter about the new list filtered
+            if (results.count == 0) {
+                notifyDataSetInvalidated();
+            } else {
+                courseList = (List<Course>) results.values;
+                notifyDataSetChanged();
+            }
+        }
+    }
+
 
 }

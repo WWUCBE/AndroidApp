@@ -3,7 +3,6 @@ package io.github.wwucbe.integretedbackend
 import org.jsoup.Jsoup
 import java.io.*
 import java.net.*
-import java.util.ArrayList
 import java.util.LinkedHashMap
 /*
 *  Goal: fetch a user's transcript from WWU's unofficial transcript page.

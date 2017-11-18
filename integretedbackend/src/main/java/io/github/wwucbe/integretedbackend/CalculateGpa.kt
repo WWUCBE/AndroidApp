@@ -54,11 +54,11 @@ fun getMSCMGPA(courses: List<Course>): Float {
 /* Input: the grade, e.g. A- or D+
 *  Output: the number value, on a 4-point scale. -1 if it doesn't get counted.
 *  Description: Handles normal grades, K grades, and Fresh Start students*/
-private fun letterToNumber(letterGradeOriginal: String): Float {
+fun letterToNumber(letterGradeOriginal: String): Float {
     var numberGrade = 0f
     var letter: Char
     var modifier = ' '
-    val letterGrade = letterGradeOriginal + "  " // ugly but works
+    val letterGrade = letterGradeOriginal.toUpperCase() + "  " // ugly but works
 
     /* K is incomplete; after completion, the actual grade will be added after the K, e.g. KB+ */
     if (letterGrade[0] == 'K' && letterGrade[1] == ' ') {

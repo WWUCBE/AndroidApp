@@ -150,6 +150,7 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
                     Boolean isMSCM = c.getMscmCourse() && constraint.toString().equals(MSCM);
                     Boolean isUserAdded = c.getUserAdded();
 
+                    /* show all user added courses no matter what they are */
                     if (isCBE || isMSCM || isUserAdded) {
                         filteredCourseList.add(c);
                     }
@@ -157,7 +158,6 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
 
                 results.values = filteredCourseList;
                 results.count = filteredCourseList.size();
-                Log.d(TAG, "Size: " + results.count);
             }
             return results;
         }
@@ -165,12 +165,9 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
             // Now we have to inform the adapter about the new list filtered
-            if (results.count == 0) {
-                notifyDataSetInvalidated();
-            } else {
-                courseList = (List<Course>) results.values;
-                notifyDataSetChanged();
-            }
+            courseList = (List<Course>) results.values;
+            notifyDataSetChanged();
+
         }
     }
 

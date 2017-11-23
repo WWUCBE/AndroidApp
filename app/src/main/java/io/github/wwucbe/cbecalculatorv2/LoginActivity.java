@@ -83,6 +83,16 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        /* reset button */
+        Button button = (Button) findViewById(R.id.login_button);
+        button.setText(R.string.login);
+        button.setClickable(true);
+    }
+
     /* onclick hander for submit button. Executes the async task. */
     public void submit(View view) {
         EditText username_et = (EditText) findViewById(R.id.username_et);

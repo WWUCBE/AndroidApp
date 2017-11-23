@@ -45,6 +45,12 @@ public class LoginActivity extends AppCompatActivity {
 
     /* END ASYNC TASK */
 
+    /* CLASS VARIABLES */
+
+    private boolean fromOnCreate = false;
+
+    /* END CLASS VARIABLES*/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +87,8 @@ public class LoginActivity extends AppCompatActivity {
             ab.setTitle(R.string.app_name);
         }
 
+        fromOnCreate = true;
+
     }
 
     @Override
@@ -88,9 +96,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onResume();
 
         /* reset button */
-        Button button = (Button) findViewById(R.id.login_button);
-        button.setText(R.string.login);
-        button.setClickable(true);
+        if (!fromOnCreate) {
+            Button button = (Button) findViewById(R.id.login_button);
+            button.setText(R.string.login);
+            button.setClickable(true);
+        }
+        fromOnCreate = false;
     }
 
     /* onclick hander for submit button. Executes the async task. */

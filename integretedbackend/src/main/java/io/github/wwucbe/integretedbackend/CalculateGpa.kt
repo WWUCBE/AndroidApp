@@ -35,7 +35,8 @@ fun getMSCMGPA(courses: List<Course>): Float {
         /* return value of -1 indicates it shouldn't be factored into the GPA calculation*/
         val courseGrade = letterToNumber(c.grade)
         if (courseGrade >= 0 && c.mscmCourse) {
-            uniqueClasses.put(c.name, GradeInfo(c.credits, courseGrade))
+            val key = c.subject + c.courseNum.toString()
+            uniqueClasses.put(key, GradeInfo(c.credits, courseGrade))
         }
     }
 

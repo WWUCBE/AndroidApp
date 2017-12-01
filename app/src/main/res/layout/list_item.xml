@@ -31,16 +31,6 @@
         app:layout_constraintLeft_toRightOf="@+id/subject" />
 
     <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Title of Class"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="8dp"
-        app:layout_constraintLeft_toRightOf="@+id/crse"
-        android:layout_marginLeft="8dp" />
-
-    <TextView
         android:id="@+id/grade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -66,15 +56,49 @@
     <Button
         android:id="@+id/remove_button"
         style="@style/Widget.AppCompat.Button.Small"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
         android:onClick="removeClass"
         android:paddingBottom="0dp"
         android:paddingTop="0dp"
         android:text="Remove"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintRight_toLeftOf="@+id/grade"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- So, what's going on here is we have two overlapping textfields. The reason is because
+    constraining an element to an element that is set to gone doesn't work as it should according
+    to the documentation. When constraining the name textview to the delete button, it was still
+    wrapping text at the spot where the delete button is when it's visible, even after setting it
+    to gone. -->
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:text="Title of Class"
+        app:layout_constraintBottom_toBottomOf="@+id/credits"
+        app:layout_constraintEnd_toStartOf="@+id/grade"
+        app:layout_constraintStart_toEndOf="@+id/crse"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/error_message"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:text=""
+        app:layout_constraintBottom_toBottomOf="@+id/credits"
+        app:layout_constraintEnd_toStartOf="@+id/remove_button"
+        app:layout_constraintStart_toEndOf="@+id/crse"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>

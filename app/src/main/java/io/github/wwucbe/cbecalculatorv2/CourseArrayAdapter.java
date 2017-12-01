@@ -31,6 +31,7 @@ import static io.github.wwucbe.cbecalculatorv2.TranscriptActivity.TAG;
 public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
     private static class ViewHolder {
         TextView tvName;
+        TextView tvError;
         TextView tvCrse;
         TextView tvSubject;
         TextView tvCredits;
@@ -79,6 +80,7 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
             // Lookup view for data population
             viewHolder.tvName = (TextView) convertView.findViewById(R.id.name);
+            viewHolder.tvError = (TextView) convertView.findViewById(R.id.error_message);
             viewHolder.tvSubject = (TextView) convertView.findViewById(R.id.subject);
             viewHolder.tvCredits = (TextView) convertView.findViewById(R.id.credits);
             viewHolder.tvGrade = (TextView) convertView.findViewById(R.id.grade);
@@ -91,6 +93,7 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
         }
         // Populate the data
         viewHolder.tvName.setText(course.getName());
+        viewHolder.tvError.setText("");
         viewHolder.tvSubject.setText(course.getSubject());
         viewHolder.tvCredits.setText(String.valueOf(course.getCredits()) + " credits");
         viewHolder.tvGrade.setText(padGrade(course.getGrade()));
@@ -99,17 +102,23 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
 
         /* set style for user added courses */
         if (course.getUserAdded()) {
-            viewHolder.tvName.setTextColor(ContextCompat.getColor(context, R.color.secondaryDarkColor));
+            viewHolder.tvName.setText("");
+            viewHolder.tvError.setTextColor(ContextCompat.getColor(context, R.color.secondaryDarkColor));
             viewHolder.bRemove.setVisibility(View.VISIBLE);
             viewHolder.bRemove.setTag(course);
+            viewHolder.tvError.setVisibility(View.VISIBLE);
+            viewHolder.tvName.setVisibility(View.GONE);
 
             /* detect if it's a valid course  */
             Boolean invalidCBE = course.getCbeCourse() == false && program.equals(CBE);
             Boolean invalidMSCM = course.getMscmCourse() == false && program.equals(MSCM);
             if (invalidCBE || invalidMSCM) {
-                viewHolder.tvName.setTextColor(Color.RED);
-                viewHolder.tvName.setText("not a valid " + program.toUpperCase() + " course");
+                viewHolder.tvError.setTextColor(Color.RED);
+                viewHolder.tvError.setText("not a valid " + program.toUpperCase() + " course");
             }
+        } else {
+            viewHolder.tvName.setVisibility(View.VISIBLE);
+            viewHolder.tvError.setVisibility(View.GONE);
         }
 
         // Return the completed view to render on screen

@@ -33,11 +33,19 @@ internal fun createCourseObjects(rawClassList: ArrayList<String>): ArrayList<Cou
     /* even though the actual transcript is rigidly formatted, this takes a
     *  more careful approach, because our test files are kinda scattershot,
     *  and it was easier to modify this than fix all the test files.*/
-    var regex = Regex("\\s+") // 1 or more spaces
+    var lineSplitRegex = Regex("\\s+") // 1 or more spaces
+    var digitExtractRegex = Regex("\\D*(\\d+)\\D*")
     for (course in rawClassList) {
-        val splitLine = course.split(regex);
+        val splitLine = course.split(lineSplitRegex)
         val subject = splitLine[0]
-        val crse = splitLine[1].toInt()
+
+        /* some oddball courses have numbers like 497H. This deals with them. */
+        var crseString = splitLine[1]
+        var crseMatch = digitExtractRegex.find(crseString)
+        var crseInt = 0
+        if (crseMatch != null) {
+            crseInt = crseMatch.destructured.component1().toInt()
+        }
 
         /* crn is next, than the name starts, which is of course split. So
         *  we go down the list until finding an integer, which will be the
@@ -52,11 +60,11 @@ internal fun createCourseObjects(rawClassList: ArrayList<String>): ArrayList<Cou
 
         /* at this point, "word" contains the credits, and substring(3, creditPos) will net us the name */
 
-        val name = splitLine.slice(3..creditPos).joinToString(" ")
+        val name = splitLine.slice(3..creditPos-1).joinToString(" ")
         val credits = word.toInt()
         val grade = splitLine[creditPos+1]
 
-        val courseObject = Course(name, grade, subject, crse, credits, false)
+        val courseObject = Course(name, grade, subject, crseInt, credits, false)
         courseList.add(courseObject)
     }
 

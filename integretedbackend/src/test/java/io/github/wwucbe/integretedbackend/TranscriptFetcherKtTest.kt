@@ -50,10 +50,11 @@ class TranscriptFetcherKtTest {
             val expectedCbeGPA = m.group(1).toFloat()
             var expectedMscmGPA: Float?
 
+            /* if there's no MSCM grade in the testfile, that means they should be the same */
             try {
                 expectedMscmGPA = m.group(2).toFloat()
             } catch (e: Exception) {
-                expectedMscmGPA = null
+                expectedMscmGPA = expectedCbeGPA;
             }
 
             /* pass in the page and get back a course list*/
@@ -77,15 +78,6 @@ class TranscriptFetcherKtTest {
                 println("Calculated MSCM Grade: " + true_cbe_gpa)
                 println("Expected MSCM Grade: " + expectedMscmGPA)
             }
-//            if (trueGPA.cbe != cbe_gpa || trueGPA.mscm != mscm_gpa) {
-//                println(file.name)
-//                println("Calculated CBE Grade: " + cbe_gpa)
-//                println("Calculated MSCM Grade: " + true_mscm_gpa)
-//
-//                println("True CBE Grade: " + expectedCbeGPA)
-//                println("True MSCM Grade: " + expectedMscmGPA)
-//                println()
-//            }
         }
     }
 

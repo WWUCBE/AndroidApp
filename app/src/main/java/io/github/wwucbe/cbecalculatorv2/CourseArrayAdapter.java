@@ -32,7 +32,6 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
     private static class ViewHolder {
         TextView tvName;
         TextView tvError;
-        TextView tvCrse;
         TextView tvSubject;
         TextView tvCredits;
         TextView tvGrade;
@@ -81,10 +80,9 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
             // Lookup view for data population
             viewHolder.tvName = (TextView) convertView.findViewById(R.id.name);
             viewHolder.tvError = (TextView) convertView.findViewById(R.id.error_message);
-            viewHolder.tvSubject = (TextView) convertView.findViewById(R.id.subject);
+            viewHolder.tvSubject = (TextView) convertView.findViewById(R.id.subject_and_num);
             viewHolder.tvCredits = (TextView) convertView.findViewById(R.id.credits);
             viewHolder.tvGrade = (TextView) convertView.findViewById(R.id.grade);
-            viewHolder.tvCrse= (TextView) convertView.findViewById(R.id.crse);
             viewHolder.bRemove = (Button) convertView.findViewById(R.id.remove_button);
             // cache the ViewHolder object inside the view
             convertView.setTag(viewHolder);
@@ -92,12 +90,13 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
             viewHolder = (ViewHolder) convertView.getTag();
         }
         // Populate the data
+        String subj_and_num =  course.getSubject() + " " + String.valueOf(course.getCourseNum());
+        subj_and_num = String.format("%1$-" + 9 + "s", subj_and_num);
         viewHolder.tvName.setText(course.getName());
         viewHolder.tvError.setText("");
-        viewHolder.tvSubject.setText(course.getSubject());
+        viewHolder.tvSubject.setText(subj_and_num);
         viewHolder.tvCredits.setText(String.valueOf(course.getCredits()) + " credits");
         viewHolder.tvGrade.setText(padGrade(course.getGrade()));
-        viewHolder.tvCrse.setText(String.valueOf(course.getCourseNum()));
         viewHolder.bRemove.setVisibility(View.INVISIBLE);
 
         /* set style for user added courses */
@@ -115,6 +114,8 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
             if (invalidCBE || invalidMSCM) {
                 viewHolder.tvError.setTextColor(Color.RED);
                 viewHolder.tvError.setText("not a valid " + program.toUpperCase() + " course");
+            } else {
+                viewHolder.tvError.setText("User added");
             }
         } else {
             viewHolder.tvName.setVisibility(View.VISIBLE);

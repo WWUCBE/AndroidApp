@@ -8,27 +8,16 @@
     android:theme="@style/classList">
 
     <TextView
-        android:id="@+id/subject"
+        android:id="@+id/subject_and_num"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:fontFamily="monospace"
-        android:text="CSCI"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/crse"
-        app:layout_constraintLeft_toLeftOf="parent" />
-
-    <TextView
-        android:id="@+id/crse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:fontFamily="monospace"
-        android:text="321"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/subject" />
+        android:text="CSCI 241"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/grade"
@@ -47,11 +36,13 @@
         android:id="@+id/credits"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
+        android:layout_marginLeft="120dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="4"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/subject" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subject_and_num" />
 
     <Button
         android:id="@+id/remove_button"
@@ -84,7 +75,7 @@
         android:text="Title of Class"
         app:layout_constraintBottom_toBottomOf="@+id/credits"
         app:layout_constraintEnd_toStartOf="@+id/grade"
-        app:layout_constraintStart_toEndOf="@+id/crse"
+        app:layout_constraintStart_toEndOf="@+id/subject_and_num"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -98,7 +89,7 @@
         android:text=""
         app:layout_constraintBottom_toBottomOf="@+id/credits"
         app:layout_constraintEnd_toStartOf="@+id/remove_button"
-        app:layout_constraintStart_toEndOf="@+id/crse"
+        app:layout_constraintStart_toEndOf="@+id/subject_and_num"
         app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

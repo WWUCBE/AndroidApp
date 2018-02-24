@@ -13,45 +13,48 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import io.github.wwucbe.integretedbackend.*;
 
-import static io.github.wwucbe.cbecalculatorv2.TranscriptActivity.TAG;
 
 /**
  * Created by critter on 6/23/2017.
  */
 
 public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
-    private static class ViewHolder {
+    private class ViewHolder {
         TextView tvName;
         TextView tvError;
         TextView tvSubject;
         TextView tvCredits;
         TextView tvGrade;
-        Button bRemove;
+        ImageButton bRemove;
+        ImageButton bEdit;
     }
 
     private final String CBE = "cbe";
     private final String MSCM = "mscm";
 
     private Filter courseFilter;
-    private List<Course> courseList;
+    private ArrayList<Course> courseList;
     private String program;
     private Context context;
 
-    public CourseArrayAdapter(@NonNull Context context, List<Course> courses, String program) {
+    public CourseArrayAdapter(@NonNull Context context, ArrayList<Course> courses, String program) {
         super(context, 0, courses);
         this.getFilter().filter(program);
         this.courseList = courses;
         this.program = program;
         this.context = context;
+    }
+
+    public String getInfo() {
+        return "Type: " + program + " Size: " + courseList.size();
     }
 
     public int getCount() {
@@ -66,9 +69,9 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
         return courseList.get(position).hashCode();
     }
 
-
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @NonNull
+    public View getView(int position, View convertView, @NonNull ViewGroup  parent) {
         // Get the data item for this position
         Course course = (Course) getItem(position);
 
@@ -83,7 +86,8 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
             viewHolder.tvSubject = (TextView) convertView.findViewById(R.id.subject_and_num);
             viewHolder.tvCredits = (TextView) convertView.findViewById(R.id.credits);
             viewHolder.tvGrade = (TextView) convertView.findViewById(R.id.grade);
-            viewHolder.bRemove = (Button) convertView.findViewById(R.id.remove_button);
+            viewHolder.bRemove = (ImageButton) convertView.findViewById(R.id.remove_button);
+            viewHolder.bEdit = (ImageButton) convertView.findViewById(R.id.edit_button);
             // cache the ViewHolder object inside the view
             convertView.setTag(viewHolder);
         } else {
@@ -98,6 +102,7 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
         viewHolder.tvCredits.setText(String.valueOf(course.getCredits()) + " credits");
         viewHolder.tvGrade.setText(padGrade(course.getGrade()));
         viewHolder.bRemove.setVisibility(View.INVISIBLE);
+        viewHolder.bEdit.setVisibility(View.INVISIBLE);
 
         /* set style for user added courses */
         if (course.getUserAdded()) {
@@ -105,6 +110,8 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
             viewHolder.tvError.setTextColor(ContextCompat.getColor(context, R.color.secondaryDarkColor));
             viewHolder.bRemove.setVisibility(View.VISIBLE);
             viewHolder.bRemove.setTag(course);
+            viewHolder.bEdit.setVisibility(View.VISIBLE);
+            viewHolder.bEdit.setTag(course);
             viewHolder.tvError.setVisibility(View.VISIBLE);
             viewHolder.tvName.setVisibility(View.GONE);
 
@@ -147,35 +154,36 @@ public class CourseArrayAdapter<T> extends ArrayAdapter implements Filterable {
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults results = new FilterResults();
             // We implement here the filter logic
-            if (constraint == null || constraint.length() == 0) {
-            /* should probably put some error handling logic here, but this should never happen;
-            *  never displaying an unfiltered list. */
-            }
-            else {
-                // We perform filtering operation
-                List<Course> filteredCourseList= new ArrayList<Course>();
 
-                for (Course c : Storage.getCourses()) {
-                    Boolean isCBE = c.getCbeCourse() && constraint.toString().equals(CBE);
-                    Boolean isMSCM = c.getMscmCourse() && constraint.toString().equals(MSCM);
-                    Boolean isUserAdded = c.getUserAdded();
+            // We perform filtering operation
+            List<Course> filteredCourseList= new ArrayList<Course>();
 
-                    /* show all user added courses no matter what they are */
-                    if (isCBE || isMSCM || isUserAdded) {
-                        filteredCourseList.add(c);
-                    }
+            for (Course c : courseList) {
+                Boolean isCBE = c.getCbeCourse() && constraint.toString().equals(CBE);
+                Boolean isMSCM = c.getMscmCourse() && constraint.toString().equals(MSCM);
+                Boolean isUserAdded = c.getUserAdded();
+
+                /* show all user added courses no matter what they are */
+                if (isCBE || isMSCM || isUserAdded) {
+                    filteredCourseList.add(c);
                 }
-
-                results.values = filteredCourseList;
-                results.count = filteredCourseList.size();
             }
+
+            results.values = filteredCourseList;
+            results.count = filteredCourseList.size();
+
+            Log.d("CBEDEBUG", "For program " + constraint.toString());
+            Log.d("CBEDEBUG", "Filtered to: " + results.count + " courses");
+
             return results;
         }
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            // Now we have to inform the adapter about the new list filtered
-            courseList = (List<Course>) results.values;
+            /* replace the entries in the list with the filtered ones, but not changing the
+            * reference the original list. */
+            courseList.clear();
+            courseList.addAll((ArrayList<Course>) results.values);
             notifyDataSetChanged();
 
         }

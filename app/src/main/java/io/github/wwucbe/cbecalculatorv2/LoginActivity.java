@@ -144,7 +144,6 @@ public class LoginActivity extends AppCompatActivity {
     *  it starts the view transcript activity. */
     private void validate(List<Course> courses){
         if (courses == null) {
-            Storage.setCourses(null);
             Toast.makeText(this, R.string.invalidLogin, Toast.LENGTH_SHORT).show();
 
             /* reset button */

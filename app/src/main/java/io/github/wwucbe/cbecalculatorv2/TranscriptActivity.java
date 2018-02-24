@@ -1,6 +1,7 @@
 package io.github.wwucbe.cbecalculatorv2;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,7 +41,6 @@ public class TranscriptActivity extends AppCompatActivity
     final String MSCM = "mscm";
     String currentMode = MSCM;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,21 +67,23 @@ public class TranscriptActivity extends AppCompatActivity
     /* merge user and fetched course lists, calculate gpas, and create adapters. */
     private void createAdapters() {
         /* calculate the GPAs */
-        gpaCBE = CalculateGpaKt.getCBEGPA(Storage.getCourses());
-        gpaMSCM = CalculateGpaKt.getMSCMGPA(Storage.getCourses());
+        gpaCBE = CalculateGpaKt.getCBEGPA(Storage.joinedCBECourses);
+        gpaMSCM = CalculateGpaKt.getMSCMGPA(Storage.joinedMSCMCourses);
 
         /*create two adapters  and set the current one*/
-        adapterCBE = new CourseArrayAdapter(this, Storage.getCourses(),"cbe");
-        adapterMSCM = new CourseArrayAdapter(this, Storage.getCourses(), "mscm");
+        adapterCBE = new CourseArrayAdapter(this, Storage.joinedCBECourses,"cbe");
+        adapterMSCM = new CourseArrayAdapter(this, Storage.joinedMSCMCourses, "mscm");
 
         listview = (ListView) findViewById(R.id.courseListview);
-        if (currentMode == CBE) {
-            listview.setAdapter(adapterCBE);
-        } else {
-            listview.setAdapter(adapterMSCM);
-        }
+    }
 
-        /* display new gpa */
+    private void updateCourseLists() {
+        adapterCBE.notifyDataSetChanged();
+        adapterMSCM.notifyDataSetChanged();
+
+        gpaCBE = CalculateGpaKt.getCBEGPA(Storage.joinedCBECourses);
+        gpaMSCM = CalculateGpaKt.getMSCMGPA(Storage.joinedMSCMCourses);
+
         updateGPA();
     }
 
@@ -113,6 +115,8 @@ public class TranscriptActivity extends AppCompatActivity
             selected_b = (Button) findViewById(R.id.cbe);
             unselected_b = (Button) findViewById(R.id.mscm);
         }
+
+        Log.d("CBEDEBUG", "" + ((CourseArrayAdapter)listview.getAdapter()).getInfo());
 
         selected_b.setBackgroundColor(Color.rgb(61, 141, 255));
         selected_b.setTextColor(Color.BLACK);
@@ -158,6 +162,7 @@ public class TranscriptActivity extends AppCompatActivity
     /* triggered by a user pressing the "add class" button from the alert dialog
     *  (code for which is in AddClassFragment.java) */
     public void addClass(String subject, String course, String credits, String grade) {
+        Log.d("CBE", "entered addClass())");
         grade = grade.toUpperCase().trim();
         subject = subject.toUpperCase().trim();
         course = course.trim();
@@ -165,22 +170,57 @@ public class TranscriptActivity extends AppCompatActivity
 
         Course c = new Course("user added", grade, subject,
                 Integer.valueOf(course), Integer.valueOf(credits), true);
-        Storage.getCourses().add(c);
-        createAdapters();
+        Storage.add(c);
+
+        updateCourseLists();
     }
 
     /* triggered by the "remove" button on user-added classes */
     public void removeClass(View view) {
         Course removed = (Course) view.getTag();
-        for (int i = 0; i < Storage.getCourses().size(); i++) {
-            if (Storage.getCourses().get(i) == removed) {
-                Toast.makeText(this, "Removed Class", Toast.LENGTH_SHORT).show();
-                Storage.getCourses().remove(i);
-                break;
-            }
-        }
+        Storage.remove(removed);
 
-        createAdapters();
+        Toast.makeText(this, "Removed Class", Toast.LENGTH_SHORT).show();
 
+        updateCourseLists();
+    }
+
+    /* triggered by the "remove" button on user-added classes */
+    public void editClassAction(View view) {
+        Course toEdit = (Course) view.getTag();
+
+        Bundle b = bundleCourse(toEdit, 0);
+        final AddClassFragment adderDialog = new AddClassFragment();
+        adderDialog.setArguments(b);
+        FragmentManager fragmentManager = getFragmentManager();
+        adderDialog.show(fragmentManager, "adder");
+
+        updateCourseLists();
+    }
+
+    /* triggered by a user pressing the "add class" button from the alert dialog
+    *  (code for which is in AddClassFragment.java) */
+    public void editClass(String subject, String course, String credits, String grade) {
+        grade = grade.toUpperCase().trim();
+        subject = subject.toUpperCase().trim();
+        course = course.trim();
+        credits = credits.trim();
+
+        Course c = new Course("user added", grade, subject,
+                Integer.valueOf(course), Integer.valueOf(credits), true);
+        Storage.add(c);
+
+        updateCourseLists();
+    }
+
+    private Bundle bundleCourse(Course course, int index) {
+        Bundle b = new Bundle();
+        b.putString("grade", course.getGrade());
+        b.putString("subject", course.getSubject());
+        b.putInt("courseNum", course.getCourseNum());
+        b.putInt("credits", course.getCredits());
+        b.putInt("index", index);
+
+        return b;
     }
 }

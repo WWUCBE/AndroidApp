@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -27,6 +28,7 @@ public class AddClassFragment extends DialogFragment {
      * Each method passes the DialogFragment in case the host needs to query it. */
     public interface NoticeDialogListener {
         void addClass(String subject, String course, String credits, String grade);
+        void editClass(String subject, String course, String credits, String grade);
     }
 
     // Use this instance of the interface to deliver action events
@@ -58,7 +60,7 @@ public class AddClassFragment extends DialogFragment {
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public Dialog onCreateDialog(Bundle bundle) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.dialog);
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -83,12 +85,11 @@ public class AddClassFragment extends DialogFragment {
                     }
                 });
 
-
         return builder.create();
     }
 
     @Override
-    public void onResume()
+    public void onResume(Bundle bundle)
     {
         super.onResume();
         final AlertDialog alertDialog = (AlertDialog) getDialog();
@@ -106,6 +107,19 @@ public class AddClassFragment extends DialogFragment {
                 }
             }
         });
+
+        if (bundle != null) {
+            EditText et_subject = (EditText) view.findViewById(R.id.dialog_subject);
+            EditText et_course = (EditText) view.findViewById(R.id.dialog_course);
+            EditText et_credits = (EditText) view.findViewById(R.id.dialog_credits);
+
+            et_credits.setText(bundle.getInt("credits"));
+            et_subject.setText(bundle.getString("subject"));
+            et_course.setText(bundle.getInt("courseNum"));
+
+            bundle.getInt("index");
+            Log.d("CBE", "bundle found!");
+        }
     }
 
     private void collectData() {
@@ -118,13 +132,9 @@ public class AddClassFragment extends DialogFragment {
     }
 
     private boolean validInput() {
-        if (subject.length() == 0 ||
+        return !(subject.length() == 0 ||
                 number.length() == 0 ||
-                credits.length() == 0) {
-            return false;
-        } else {
-            return true;
-        }
+                credits.length() == 0);
     }
 
 }
